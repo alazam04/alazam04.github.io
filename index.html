@@ -3,28 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>All Tool</title>
+<title>Premium Tool Panel</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
-  font-family:Arial;
-  background:#eef2f7;
+  font-family:'Poppins',sans-serif;
+  background:#0f172a;
+  color:white;
 }
 
 .header{
+  padding:20px;
   text-align:center;
-  padding:15px;
-  font-weight:bold;
   font-size:18px;
+  font-weight:700;
+  background:linear-gradient(90deg,#3b82f6,#06b6d4);
+}
+
+.container{
+  padding:15px;
 }
 
 .card{
-  background:white;
-  margin:15px;
+  background:#1e293b;
+  margin-bottom:15px;
   padding:15px;
   border-radius:15px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.title{
+  font-size:14px;
+  font-weight:600;
+  margin-bottom:10px;
+  color:#93c5fd;
 }
 
 .btn{
@@ -34,197 +50,175 @@ body{
   border-radius:10px;
   background:linear-gradient(90deg,#3b82f6,#06b6d4);
   color:white;
+  font-weight:600;
   cursor:pointer;
 }
 
-.item{
-  background:#f8fafc;
+.input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:10px;
+  outline:none;
+}
+
+.result{
+  margin-top:10px;
+  font-weight:600;
+  color:#22c55e;
+}
+
+.link-box{
+  background:#0f172a;
   padding:10px;
   border-radius:10px;
   margin-top:8px;
-}
-
-.item a{
-  text-decoration:none;
-  color:#3b82f6;
-  font-size:13px;
+  font-size:12px;
   word-break:break-all;
+  color:#cbd5e1;
 }
 
-.copy-btn{
-  margin-top:6px;
-  padding:6px 10px;
+.copy{
+  margin-top:5px;
+  padding:6px;
+  width:100%;
   border:none;
   border-radius:8px;
-  background:#3b82f6;
+  background:#334155;
   color:white;
   font-size:12px;
   cursor:pointer;
 }
 
-.toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#333;
-  color:white;
-  padding:8px 16px;
-  border-radius:20px;
-  opacity:0;
-  transition:0.3s;
+.otp{
+  font-size:22px;
+  font-weight:700;
+  color:#fbbf24;
+  margin-top:10px;
 }
-.toast.show{opacity:1;}
+
+.small{
+  font-size:12px;
+  color:#94a3b8;
+}
 </style>
 </head>
 
 <body>
 
-<div class="header">✨ TOOL ALL-IN-ONE ✨</div>
+<div class="header">⚡ PREMIUM TOOL PANEL</div>
 
-<!-- NAMA -->
+<div class="container">
+
+<!-- GENERATOR -->
 <div class="card">
-  <h3>Generator Nama</h3>
-  <button class="btn" onclick="generateNama()">Generate & Copy</button>
-  <div id="hasil" style="margin-top:10px;font-weight:bold;"></div>
+  <div class="title">🎲 Generator Nama</div>
+  <button class="btn" onclick="genNama()">Generate Nama</button>
+  <div class="result" id="nama">-</div>
 </div>
 
-<!-- OTP AUTO -->
+<!-- OTP -->
 <div class="card">
-<div class="card">
-  <h3>OTP HeroSMS</h3>
+  <div class="title">🔐 OTP AUTO</div>
 
-  <input id="idOtp" class="input" placeholder="Masukkan ID pertama kali saja">
-  <button class="btn" onclick="simpanID()">Simpan ID</button>
+  <input class="input" id="idOtp" placeholder="Masukkan ID order">
 
-  <div style="margin-top:10px;">
-    🆔 ID: <span id="id">-</span>
-  </div>
+  <button class="btn" onclick="saveID()">Simpan ID</button>
 
-  <div>
-    📱 Nomor: <span id="nomor">-</span>
-  </div>
+  <div class="small">ID: <span id="id">-</span></div>
+  <div class="small">📱 Nomor: <span id="nomor">-</span></div>
 
-  <div id="otp" style="font-size:22px;font-weight:bold;margin-top:5px;">-</div>
+  <div class="otp" id="otp">-</div>
 </div>
 
 <!-- LINK -->
 <div class="card">
-  <h3>Link Order</h3>
+  <div class="title">🔗 Link Order</div>
   <div id="links"></div>
 </div>
 
-<div id="toast" class="toast">Disalin!</div>
+</div>
 
 <script>
-// ===== NAMA =====
-const depan=["Ahmad","Budi","Siti","Rina","Michael","Aisyah","Daniel","Putri"];
-const belakang=["Santoso","Wijaya","Saputra","Pratama","Smith","Brown","Rahman"];
 
-function random(a){return a[Math.floor(Math.random()*a.length)]}
+// ===== GENERATOR =====
+const first=["Ahmad","Budi","Siti","Rina","Dewi","Aisyah","Rizky","Fajar"];
+const last=["Santoso","Pratama","Wijaya","Saputra","Rahman","Firmansyah"];
 
-function generateNama(){
-  let nama=random(depan)+" "+random(belakang);
-  document.getElementById("hasil").innerText=nama;
-  navigator.clipboard.writeText(nama);
-  showToast();
+function rand(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// ===== LINK =====
-const data = [
-{nama:"AWAW", link:"https://s.shopee.co.id/6VKFY7rZoL"},
-{nama:"AWAW", link:"https://s.shopee.co.id/6px5wm8CN6"},
-{nama:"AWAW", link:"https://s.shopee.co.id/901aWmbQPp"},
-{nama:"AWAW", link:"https://s.shopee.co.id/7ppd8fwWIc"},
-{nama:"WHITE CYBER", link:"https://s.shopee.co.id/9fHHK4KU73"},
-{nama:"ALFA DIGITAL", link:"https://s.shopee.co.id/4qC1ZEp4uu"},
-{nama:"SRIBUFOLLS", link:"https://s.shopee.co.id/3Vgdyp7e4p"},
-{nama:"HELENA STUFF", link:"https://s.shopee.co.id/AADXv6H81t"},
-{nama:"SECRET PANEL", link:"https://s.shopee.co.id/4AwKm7hE75"},
-{nama:"PROMETIXPANEL", link:"https://s.shopee.co.id/9KeQve7UK9"},
-{nama:"YOAKE", link:"https://s.shopee.co.id/8fOk8T99r5"},
-{nama:"YOAKE", link:"https://s.shopee.co.id/3LNDmhKKrw"},
-{nama:"MAMA - WHITE CYBER", link:"https://s.shopee.co.id/2g7J598NmS"}
+function genNama(){
+  let nama = rand(first)+" "+rand(last);
+  document.getElementById("nama").innerText = nama;
+  navigator.clipboard.writeText(nama);
+}
+
+// ===== LINKS =====
+const data=[
+{n:"AWAW",l:"https://s.shopee.co.id/6VKFY7rZoL"},
+{n:"WHITE CYBER",l:"https://s.shopee.co.id/9fHHK4KU73"},
+{n:"ALFA DIGITAL",l:"https://s.shopee.co.id/4qC1ZEp4uu"}
 ];
 
-function renderLinks(){
-  let html="";
-  data.forEach(d=>{
-    html+=`
-      <div class="item">
-        <b>${d.nama}</b><br>
-        <a href="${d.link}" target="_blank">${d.link}</a><br>
-        <button class="copy-btn" onclick="copyText('${d.link}')">Copy Link</button>
-      </div>
-    `;
-  });
-  document.getElementById("links").innerHTML=html;
+let html="";
+data.forEach(d=>{
+  html+=`
+    <div class="link-box">
+      <b>${d.n}</b><br>
+      ${d.l}
+      <button class="copy" onclick="copy('${d.l}')">Copy</button>
+    </div>
+  `;
+});
+document.getElementById("links").innerHTML=html;
+
+function copy(t){
+  navigator.clipboard.writeText(t);
 }
 
-// ===== COPY =====
-function copyText(text){
-  navigator.clipboard.writeText(text);
-  showToast();
-}
+// ===== OTP =====
+let currentID="";
 
-function showToast(){
-  let t=document.getElementById("toast");
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),1500);
-}
+function saveID(){
+  let id=document.getElementById("idOtp").value;
+  if(!id) return;
 
-// ===== OTP AUTO =====
-function ambilOTP(){
-  let currentID = "";
+  currentID=id;
+  localStorage.setItem("hero_id",id);
 
-// simpan ID
-function simpanID(){
-  let id = document.getElementById("idOtp").value;
-
-  if(!id){
-    alert("Masukkan ID dulu");
-    return;
-  }
-
-  localStorage.setItem("hero_id", id);
-  currentID = id;
   ambilOTP();
 }
 
-// load otomatis
-window.onload = function(){
-  let saved = localStorage.getItem("hero_id");
-
+window.onload=function(){
+  let saved=localStorage.getItem("hero_id");
   if(saved){
-    currentID = saved;
-    document.getElementById("idOtp").value = saved;
+    currentID=saved;
+    document.getElementById("idOtp").value=saved;
     ambilOTP();
   }
 }
 
-// ambil OTP
 function ambilOTP(){
   if(!currentID) return;
 
   fetch(`https://generator-nama.vercel.app/api/otp?id=${currentID}`)
-    .then(res=>res.json())
-    .then(data=>{
-      document.getElementById("id").innerText = currentID;
-      document.getElementById("nomor").innerText = data.number || "-";
-      document.getElementById("otp").innerText = data.otp || "-";
+  .then(r=>r.json())
+  .then(d=>{
+    document.getElementById("id").innerText=d.id||"-";
+    document.getElementById("nomor").innerText=d.number||"-";
+    document.getElementById("otp").innerText=d.otp||"-";
 
-      if(data.otp && data.otp !== "Menunggu OTP"){
-        navigator.clipboard.writeText(data.otp);
-      }
-    });
+    if(d.otp){
+      navigator.clipboard.writeText(d.otp);
+    }
+  });
 }
 
-// auto refresh
 setInterval(ambilOTP,5000);
-}
-  
-// INIT
-renderLinks();
+
 </script>
 
 </body>
