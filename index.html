@@ -91,10 +91,19 @@ body{
 
 <!-- OTP AUTO -->
 <div class="card">
-  <h3>OTP AUTO</h3>
+<div class="card">
+  <h3>OTP HeroSMS</h3>
 
-  <div>ID: <span id="id">-</span></div>
-  <div>📱 Nomor: <span id="nomor">-</span></div>
+  <input id="idOtp" class="input" placeholder="Masukkan ID pertama kali saja">
+  <button class="btn" onclick="simpanID()">Simpan ID</button>
+
+  <div style="margin-top:10px;">
+    🆔 ID: <span id="id">-</span>
+  </div>
+
+  <div>
+    📱 Nomor: <span id="nomor">-</span>
+  </div>
 
   <div id="otp" style="font-size:22px;font-weight:bold;margin-top:5px;">-</div>
 </div>
@@ -166,26 +175,54 @@ function showToast(){
 
 // ===== OTP AUTO =====
 function ambilOTP(){
-  fetch("https://generator-nama.vercel.app/api/otp")
+  let currentID = "";
+
+// simpan ID
+function simpanID(){
+  let id = document.getElementById("idOtp").value;
+
+  if(!id){
+    alert("Masukkan ID dulu");
+    return;
+  }
+
+  localStorage.setItem("hero_id", id);
+  currentID = id;
+  ambilOTP();
+}
+
+// load otomatis
+window.onload = function(){
+  let saved = localStorage.getItem("hero_id");
+
+  if(saved){
+    currentID = saved;
+    document.getElementById("idOtp").value = saved;
+    ambilOTP();
+  }
+}
+
+// ambil OTP
+function ambilOTP(){
+  if(!currentID) return;
+
+  fetch(`https://generator-nama.vercel.app/api/otp?id=${currentID}`)
     .then(res=>res.json())
     .then(data=>{
-      document.getElementById("id").innerText = data.id || "-";
+      document.getElementById("id").innerText = currentID;
       document.getElementById("nomor").innerText = data.number || "-";
       document.getElementById("otp").innerText = data.otp || "-";
 
       if(data.otp && data.otp !== "Menunggu OTP"){
         navigator.clipboard.writeText(data.otp);
       }
-    })
-    .catch(()=>{
-      document.getElementById("otp").innerText="Error";
     });
 }
 
-// AUTO REFRESH
+// auto refresh
 setInterval(ambilOTP,5000);
-ambilOTP();
-
+}
+  
 // INIT
 renderLinks();
 </script>
