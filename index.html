@@ -111,14 +111,12 @@ body{
 
 <div class="container">
 
-<!-- GENERATOR -->
 <div class="card">
   <div class="title">🎲 Generator Nama</div>
   <button class="btn" onclick="genNama()">Generate Nama</button>
   <div class="result" id="nama">-</div>
 </div>
 
-<!-- OTP -->
 <div class="card">
   <div class="title">🔐 OTP AUTO</div>
 
@@ -132,7 +130,6 @@ body{
   <div class="otp" id="otp">-</div>
 </div>
 
-<!-- LINK -->
 <div class="card">
   <div class="title">🔗 Link Order</div>
   <div id="links"></div>
@@ -204,20 +201,23 @@ window.onload=function(){
 function ambilOTP(){
   if(!currentID) return;
 
-  fetch(`https://generator-nama.vercel.app/api/otp?id=${currentID}`)
+  // LINK CLOUDFLARE ANDA YANG BARU
+  fetch(`https://aihomestore.alazam04.workers.dev/api/otp?id=${currentID}`)
   .then(r=>r.json())
   .then(d=>{
     document.getElementById("id").innerText=d.id||"-";
     document.getElementById("nomor").innerText=d.number||"-";
     document.getElementById("otp").innerText=d.otp||"-";
 
-    if(d.otp){
+    // Otomatis copy OTP jika ada (selain tanda "-")
+    if(d.otp && d.otp !== "-"){
       navigator.clipboard.writeText(d.otp);
     }
   });
 }
 
-setInterval(ambilOTP,5000);
+// Cek OTP baru setiap 5 detik
+setInterval(ambilOTP, 5000);
 
 </script>
 
