@@ -2,135 +2,193 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Generator Nama Random</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator Premium</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-    text-align: center;
-    padding: 40px;
-  }
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #eef2f7;
+}
 
-  h1 {
-    margin-bottom: 20px;
-  }
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 20px;
+  font-weight: bold;
+  font-size: 20px;
+}
 
-  button {
-    padding: 12px 18px;
-    margin: 8px;
-    border: none;
-    border-radius: 10px;
-    background: #00c9a7;
-    color: white;
-    cursor: pointer;
-    font-size: 15px;
-  }
+/* CARD */
+.card {
+  background: white;
+  margin: 15px;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
 
-  button:hover {
-    background: #00a98f;
-  }
+/* BUTTON */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg,#3b82f6,#06b6d4);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-  input {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    width: 80px;
-    text-align: center;
-  }
+.btn:active {
+  transform: scale(0.97);
+}
 
-  #hasil {
-    margin-top: 20px;
-    font-size: 26px;
-    font-weight: bold;
-  }
+/* INPUT */
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
+}
 
-  .list {
-    margin-top: 20px;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+/* LIST */
+.item {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+}
 
-  .item {
-    margin: 5px 0;
-    padding: 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 8px;
-    cursor: pointer;
-  }
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -3px 15px rgba(0,0,0,0.1);
+}
 
-  .item:hover {
-    background: rgba(255,255,255,0.2);
-  }
+.navbar div {
+  font-size: 12px;
+  text-align: center;
+  color: #888;
+}
+
+.active {
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.toast.show {
+  opacity: 1;
+}
 </style>
 </head>
+
 <body>
 
-<h1>🎲 Generator Nama Random (1000+)</h1>
+<div class="header">✨ NAMA ACAK GENERATOR ✨</div>
 
-<button onclick="generateOne()">1 Nama</button>
-<button onclick="generateMany()">Banyak Nama</button>
-<br>
-<input type="number" id="jumlah" value="10" min="1" max="100">
-<p>Klik nama untuk copy</p>
+<!-- GENERATOR -->
+<div class="card">
+  <button class="btn" onclick="generateNama()">🔀 Generate & Copy Nama</button>
+  <div id="hasil" style="text-align:center;margin-top:10px;font-weight:bold;"></div>
+</div>
 
-<div id="hasil"></div>
-<div class="list" id="list"></div>
+<!-- EMAIL -->
+<div class="card">
+  <b>Email Generator</b>
+  <input id="email" class="input" readonly>
+  <button class="btn" onclick="generateEmail()">Generate Email</button>
+</div>
+
+<!-- RIWAYAT -->
+<div class="card">
+  <b>Riwayat</b>
+  <div id="list"></div>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="active">🏠<br>Home</div>
+  <div>⭐<br>Favorit</div>
+  <div>🕒<br>Riwayat</div>
+  <div>⚙️<br>Setting</div>
+</div>
+
+<div id="toast" class="toast">Disalin!</div>
 
 <script>
-const suku1 = [
-"ba","be","bi","bo","bu","ca","ce","ci","co","cu",
-"da","de","di","do","du","fa","fe","fi","fo","fu",
-"ga","ge","gi","go","gu","ha","he","hi","ho","hu",
-"ja","je","ji","jo","ju","ka","ke","ki","ko","ku",
-"la","le","li","lo","lu","ma","me","mi","mo","mu",
-"na","ne","ni","no","nu","pa","pe","pi","po","pu",
-"ra","re","ri","ro","ru","sa","se","si","so","su",
-"ta","te","ti","to","tu","va","ve","vi","vo","vu",
-"za","ze","zi","zo","zu"
-];
+const suku1=["ba","da","ra","za","ka","la","na","sa","ma","xo","vi"];
+const suku2=["ran","din","tan","mon","lin","zor","vin","tor","xel","nor"];
 
-const suku2 = [
-"ran","rin","ron","rus","lan","lin","lon","lus",
-"tan","tin","ton","tus","kan","kin","kon","kus",
-"zan","zin","zon","zus","var","vin","von","vus",
-"dar","din","don","dus","far","fin","fon","fus",
-"nar","nin","non","nus","sar","sin","son","sus",
-"qar","qin","qon","qus","mir","mor","mur","mel",
-"xel","xar","xor","xir","zor","zir","zor","zul"
-];
+let riwayat=JSON.parse(localStorage.getItem("riwayat"))||[];
 
-function random(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function random(a){return a[Math.floor(Math.random()*a.length)]}
+
+function showToast(){
+  let t=document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
 }
 
-function generateName() {
-  return random(suku1) + random(suku2);
+function generateNama(){
+  let nama=random(suku1)+random(suku2);
+  document.getElementById("hasil").innerText=nama;
+  navigator.clipboard.writeText(nama);
+  showToast();
 }
 
-function generateOne() {
-  document.getElementById("list").innerHTML = "";
-  document.getElementById("hasil").innerText = generateName();
+function generateEmail(){
+  let email=random(suku1)+random(suku2)+Math.floor(Math.random()*100)+"@gmail.com";
+  document.getElementById("email").value=email;
+  
+  riwayat.unshift(email);
+  localStorage.setItem("riwayat",JSON.stringify(riwayat));
+  render();
+  navigator.clipboard.writeText(email);
+  showToast();
 }
 
-function generateMany() {
-  let jumlah = document.getElementById("jumlah").value;
-  let hasil = "";
-
-  for (let i = 0; i < jumlah; i++) {
-    let nama = generateName();
-    hasil += `<div class="item" onclick="copyText('${nama}')">${nama}</div>`;
-  }
-
-  document.getElementById("list").innerHTML = hasil;
-  document.getElementById("hasil").innerText = "";
+function render(){
+  let html="";
+  riwayat.slice(0,10).forEach(e=>{
+    html+=`<div class="item" onclick="copy('${e}')">${e}</div>`;
+  });
+  document.getElementById("list").innerHTML=html;
 }
 
-function copyText(text) {
+function copy(text){
   navigator.clipboard.writeText(text);
-  alert("Disalin: " + text);
+  showToast();
 }
+
+render();
 </script>
 
 </body>
