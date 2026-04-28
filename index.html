@@ -14,13 +14,14 @@ body{ margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:whit
 .card{ background:#1e293b; margin-bottom:15px; padding:15px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.3); }
 .title{ font-size:14px; font-weight:600; margin-bottom:10px; color:#93c5fd; }
 .btn{ width:100%; padding:12px; border:none; border-radius:10px; background:linear-gradient(90deg,#3b82f6,#06b6d4); color:white; font-weight:600; cursor:pointer; }
-.btn-hero{ background:linear-gradient(90deg,#f59e0b,#ef4444); }
-.input{ width:100%; padding:10px; border-radius:10px; border:none; margin-bottom:10px; outline:none; box-sizing:border-box; }
+.btn-hero{ background:linear-gradient(90deg,#ee4d2d,#ff7337); } /* Warna Shopee */
 .result{ margin-top:10px; font-weight:600; color:#22c55e; }
 .otp{ font-size:22px; font-weight:700; color:#fbbf24; margin-top:10px; }
-.small{ font-size:12px; color:#94a3b8; }
+.small{ font-size:12px; color:#94a3b8; display: flex; align-items: center; gap: 8px; margin-top: 5px; }
 .link-box{ background:#0f172a; padding:10px; border-radius:10px; margin-top:8px; font-size:12px; word-break:break-all; color:#cbd5e1; }
-.copy{ margin-top:5px; padding:6px; width:100%; border:none; border-radius:8px; background:#334155; color:white; font-size:12px; cursor:pointer; }
+.copy-mini{ padding:4px 8px; border:none; border-radius:5px; background:#334155; color:white; font-size:10px; cursor:pointer; font-weight: 600; }
+.copy-mini:active{ background: #475569; }
+.copy-big{ margin-top:5px; padding:6px; width:100%; border:none; border-radius:8px; background:#334155; color:white; font-size:12px; cursor:pointer; }
 </style>
 </head>
 
@@ -35,16 +36,21 @@ body{ margin:0; font-family:'Poppins',sans-serif; background:#0f172a; color:whit
 </div>
 
 <div class="card">
-  <div class="title">🦸‍♂️ SMS HERO AUTO</div>
+  <div class="title">🛍️ SMS HERO (KHUSUS SHOPEE)</div>
 
-  <input class="input" id="layanan" placeholder="Kode Layanan (misal: wa, tg, ig)">
+  <button class="btn btn-hero" onclick="pesanNomor()">Pesan Nomor Shopee</button>
 
-  <button class="btn btn-hero" onclick="pesanNomor()">Pesan Nomor</button>
-
-  <div class="small" style="margin-top: 10px;">ID: <span id="id">-</span></div>
-  <div class="small">📱 Nomor: <span id="nomor">-</span></div>
+  <div class="small" style="margin-top: 15px;">
+    ID: <span id="id" style="color:white;">-</span>
+  </div>
+  
+  <div class="small">
+    📱 Nomor: <span id="nomor" style="color:white; font-weight:bold;">-</span>
+    <button id="btnCopyNomor" class="copy-mini" style="display:none;" onclick="copyTeks('nomor')">Copy</button>
+  </div>
 
   <div class="otp" id="otp">-</div>
+  <div id="statusCheck" class="small" style="color:#fbbf24; font-style:italic;"></div>
 </div>
 
 <div class="card">
@@ -73,25 +79,34 @@ const data=[
 ];
 let html="";
 data.forEach(d=>{
-  html+=`<div class="link-box"><b>${d.n}</b><br>${d.l}<button class="copy" onclick="copy('${d.l}')">Copy</button></div>`;
+  html+=`<div class="link-box"><b>${d.n}</b><br>${d.l}<button class="copy-big" onclick="copyDirect('${d.l}')">Copy Link</button></div>`;
 });
 document.getElementById("links").innerHTML=html;
-function copy(t){ navigator.clipboard.writeText(t); }
+
+function copyDirect(t){ navigator.clipboard.writeText(t); alert("Link disalin!"); }
+
+// Fungsi copy teks umum
+function copyTeks(elementId) {
+  const teks = document.getElementById(elementId).innerText;
+  if(teks && teks !== "-" && teks !== "Sedang memesan...") {
+    navigator.clipboard.writeText(teks);
+    alert(elementId.charAt(0).toUpperCase() + elementId.slice(1) + " disalin!");
+  }
+}
 
 
-// ===== SMS HERO SYSTEM =====
+// ===== SMS HERO SYSTEM (SHOPEE) =====
 let currentID = "";
 let checkInterval;
 
 function pesanNomor(){
-  // Ambil kode dari input, default-nya 'ot' (Other) kalau kosong
-  let layanan = document.getElementById("layanan").value || "ot";
-  
   document.getElementById("nomor").innerText = "Sedang memesan...";
+  document.getElementById("id").innerText = "-";
   document.getElementById("otp").innerText = "-";
+  document.getElementById("statusCheck").innerText = "";
+  document.getElementById("btnCopyNomor").style.display = "none";
   
-  // Memanggil Cloudflare untuk memesan nomor
-  fetch(`https://aihomestore.alazam04.workers.dev/api/order?service=${layanan}`)
+  fetch(`https://aihomestore.alazam04.workers.dev/api/order?service=ls`)
   .then(r => r.json())
   .then(d => {
     if(d.number){
@@ -99,36 +114,39 @@ function pesanNomor(){
       document.getElementById("id").innerText = d.id;
       document.getElementById("nomor").innerText = d.number;
       document.getElementById("otp").innerText = "Menunggu SMS...";
+      document.getElementById("statusCheck").innerText = "Auto-checking OTP aktif...";
       
-      // Copy nomor otomatis
+      // Munculkan tombol copy
+      document.getElementById("btnCopyNomor").style.display = "inline-block";
+      
+      // Auto copy nomor saat pertama kali muncul
       navigator.clipboard.writeText(d.number);
 
-      // Mulai mengecek OTP setiap 5 detik
+      // Mulai cek OTP
       clearInterval(checkInterval);
       checkInterval = setInterval(cekOTP, 5000);
     } else {
-      alert("Gagal Memesan: " + (d.error || "Cek saldo"));
+      alert("Gagal: " + (d.error || "Saldo mungkin habis"));
       document.getElementById("nomor").innerText = "-";
     }
   }).catch(e => {
-    alert("Terjadi kesalahan jaringan.");
+    alert("Koneksi Error.");
   });
 }
 
 function cekOTP(){
   if(!currentID) return;
 
-  // Memanggil Cloudflare untuk mengecek status OTP
   fetch(`https://aihomestore.alazam04.workers.dev/api/check?id=${currentID}`)
   .then(r => r.json())
   .then(d => {
     if(d.otp && d.otp !== "-"){
       document.getElementById("otp").innerText = d.otp;
+      document.getElementById("statusCheck").innerText = "OTP Berhasil Diterima!";
       
-      // Copy OTP otomatis
+      // Auto copy OTP
       navigator.clipboard.writeText(d.otp);
       
-      // Hentikan pengecekan jika OTP sudah muncul
       clearInterval(checkInterval); 
     }
   });
