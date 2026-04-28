@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aihomestore Panel V11</title>
+<title>Aihomestore Panel V12</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -38,7 +38,7 @@ body { margin:0; font-family:'Poppins',sans-serif; background: var(--bg); color:
 .result-address { margin-top: 5px; background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 12px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); }
 .address-val { color: #22c55e; font-weight: 600; display: block; }
 
-.select-op { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 12px; outline: none; font-family: 'Poppins'; }
+.select-op { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 8px; outline: none; font-family: 'Poppins'; }
 
 #toast { visibility: hidden; min-width: 200px; background-color: #3b82f6; color: #fff; text-align: center; border-radius: 10px; padding: 12px; position: fixed; z-index: 100; left: 50%; transform: translateX(-50%); bottom: 30px; font-size: 13px; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
@@ -59,15 +59,23 @@ body { margin:0; font-family:'Poppins',sans-serif; background: var(--bg); color:
 
     <div class="card">
         <div class="title">🛍️ Shopee OTP Engine</div>
-        <select class="select-op" id="operator" onchange="saveOp()">
-            <option value="any">Otomatis (Termurah)</option>
-            <option value="telkomsel">Telkomsel</option>
-            <option value="indosat">Indosat</option>
-            <option value="xl">XL Axiata</option>
-            <option value="three">Tri (3)</option>
-            <option value="axis">Axis</option>
-        </select>
-        <button class="btn btn-shopee" onclick="pesanNomor()">AMBIL NOMOR SHOPEE</button>
+        
+        <div style="display:flex; gap:8px;">
+            <select class="select-op" id="server" onchange="saveOp()" style="flex:1;">
+                <option value="hero">🔥 HERO SMS</option>
+                <option value="rumah">🏠 RUMAH OTP</option>
+            </select>
+            <select class="select-op" id="operator" onchange="saveOp()" style="flex:1;">
+                <option value="any">Termurah</option>
+                <option value="telkomsel">Telkomsel</option>
+                <option value="indosat">Indosat</option>
+                <option value="xl">XL Axiata</option>
+                <option value="three">Tri (3)</option>
+                <option value="axis">Axis</option>
+            </select>
+        </div>
+
+        <button class="btn btn-shopee" onclick="pesanNomor()" style="margin-top: 4px;">AMBIL NOMOR SHOPEE</button>
 
         <div class="info-grid">
             <div class="info-item"><span class="info-label">Order ID</span><span class="info-val" id="id">-</span></div>
@@ -85,7 +93,7 @@ body { margin:0; font-family:'Poppins',sans-serif; background: var(--bg); color:
     </div>
 
     <div class="card">
-        <div class="title">🏠 Nama dan Alamat</div>
+        <div class="title">🏠 NAMA DAN ALAMAT</div>
         <div class="result-address" id="fullData">
             Nama: <span class="address-val" id="resNama">-</span>
             Alamat: <span class="address-val" id="resAlamat">-</span>
@@ -125,19 +133,17 @@ function showToast(msg) {
 
 // Memory Recovery
 window.onload = () => {
-    // Load Operator Terakhir
+    if(localStorage.getItem('saved_server')){
+        document.getElementById("server").value = localStorage.getItem('saved_server');
+    }
     if(localStorage.getItem('saved_op')){
         document.getElementById("operator").value = localStorage.getItem('saved_op');
     }
-    
-    // Load Data Alamat
     if(localStorage.getItem('saved_name')){
         document.getElementById("resNama").innerText = localStorage.getItem('saved_name');
         document.getElementById("resAlamat").innerText = localStorage.getItem('saved_addr');
         document.getElementById("resDetail").innerText = localStorage.getItem('saved_det');
     }
-    
-    // Load Order Aktif
     if(localStorage.getItem('saved_id')){
         orderID = localStorage.getItem('saved_id');
         document.getElementById("id").innerText = orderID;
@@ -148,8 +154,8 @@ window.onload = () => {
     }
 };
 
-// Simpan Operator saat diubah
 function saveOp() {
+    localStorage.setItem('saved_server', document.getElementById("server").value);
     localStorage.setItem('saved_op', document.getElementById("operator").value);
 }
 
@@ -181,9 +187,13 @@ let timer;
 
 function pesanNomor(){
   resetOrder();
+  const srv = document.getElementById("server").value;
   const op = document.getElementById("operator").value;
+  
   document.getElementById("nomor").innerText = "Ordering...";
-  fetch(`https://aihomestore.alazam04.workers.dev/api/order?service=ka&operator=${op}`)
+  
+  // Mengirim parameter server ke Cloudflare
+  fetch(`https://aihomestore.alazam04.workers.dev/api/order?server=${srv}&operator=${op}`)
   .then(r => r.json())
   .then(res => {
     if(res.number){
@@ -192,27 +202,37 @@ function pesanNomor(){
       document.getElementById("nomor").innerText = res.number;
       document.getElementById("btnCopyNomor").style.display = "block";
       document.getElementById("status").innerText = "Menunggu SMS...";
+      
       localStorage.setItem('saved_id', orderID);
       localStorage.setItem('saved_num', res.number);
+      localStorage.setItem('active_server', srv); 
+      
       navigator.clipboard.writeText(res.number);
       showToast("Nomor Disalin!");
       clearInterval(timer);
       timer = setInterval(cekOTP, 5000);
+    } else {
+      alert("Gagal: " + (res.error || "Cek saldo / stok operator"));
+      document.getElementById("nomor").innerText = "-";
     }
   });
 }
 
 function cekOTP(){
   if(!orderID) return;
-  fetch(`https://aihomestore.alazam04.workers.dev/api/check?id=${orderID}`)
+  const srv = localStorage.getItem('active_server') || "hero";
+  
+  fetch(`https://aihomestore.alazam04.workers.dev/api/check?server=${srv}&id=${orderID}`)
   .then(r => r.json())
   .then(res => {
     if(res.otp && res.otp !== "-"){
       document.getElementById("otp").innerText = res.otp;
       document.getElementById("status").innerText = "OTP MASUK!";
       localStorage.setItem('saved_otp', res.otp);
+      
       notifySound.play();
-      navigator.clipboard.writeText(res.otp);
+      navigator.clipboard.writeText(res.otp); // Copy tanpa toast
+      
       clearInterval(timer);
     }
   });
@@ -224,6 +244,7 @@ function resetOrder(){
     localStorage.removeItem('saved_id');
     localStorage.removeItem('saved_num');
     localStorage.removeItem('saved_otp');
+    localStorage.removeItem('active_server');
     document.getElementById("id").innerText = "-";
     document.getElementById("nomor").innerText = "-";
     document.getElementById("otp").innerText = "WAITING";
@@ -240,5 +261,5 @@ function copyTeks(id, manual) {
 }
 </script>
 </body>
-                </html>
-    
+</html>
+                      
