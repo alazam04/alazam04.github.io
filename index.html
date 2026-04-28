@@ -12,14 +12,13 @@ body{
   background:#eef2f7;
 }
 
-/* HEADER */
 .header{
   text-align:center;
   padding:15px;
   font-weight:bold;
+  font-size:18px;
 }
 
-/* CARD */
 .card{
   background:white;
   margin:15px;
@@ -28,7 +27,6 @@ body{
   box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
-/* BUTTON */
 .btn{
   width:100%;
   padding:12px;
@@ -39,7 +37,6 @@ body{
   cursor:pointer;
 }
 
-/* LIST */
 .item{
   background:#f8fafc;
   padding:10px;
@@ -51,69 +48,74 @@ body{
   text-decoration:none;
   color:#3b82f6;
   font-size:13px;
+  word-break: break-all;
 }
 
-/* NAV */
-.navbar{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:white;
-  padding:10px;
-  box-shadow:0 -3px 10px rgba(0,0,0,0.1);
-}
-
-.navbar div{
+.copy-btn{
+  margin-top:6px;
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  background:#3b82f6;
+  color:white;
+  font-size:12px;
   cursor:pointer;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333;
+  color:white;
+  padding:8px 16px;
+  border-radius:20px;
+  opacity:0;
+  transition:0.3s;
+}
+.toast.show{
+  opacity:1;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">✨ GENERATOR & ORDER ✨</div>
+<div class="header">✨ GENERATOR & LINK ORDER ✨</div>
 
-<!-- MENU NAMA -->
-<div id="menuNama" class="card">
-  <h3>NAMA</h3>
-  <button class="btn" onclick="generateNama()">Generate Nama</button>
+<!-- NAMA -->
+<div class="card">
+  <h3>Nama</h3>
+  <button class="btn" onclick="generateNama()">Generate & Copy</button>
   <div id="hasil" style="margin-top:10px;font-weight:bold;"></div>
 </div>
 
-<!-- MENU LINK -->
-<div id="menuLink" class="card" style="display:none;">
-  <h3>LINK ORDER</h3>
+<!-- LINK ORDER -->
+<div class="card">
+  <h3>Link Order</h3>
   <div id="links"></div>
 </div>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <div onclick="showMenu('nama')">🏠<br>Nama</div>
-  <div onclick="showMenu('link')">🛒<br>Order</div>
-</div>
+<div id="toast" class="toast">Link disalin!</div>
 
 <script>
-// ====== GENERATOR NAMA ======
+// ===== NAMA =====
 const depan=["Ahmad","Budi","Siti","Rina","Michael","Aisyah","Daniel","Putri"];
 const belakang=["Santoso","Wijaya","Saputra","Pratama","Smith","Brown","Rahman"];
 
-function random(a){return a[Math.floor(Math.random()*a.length)]}
+function random(a){
+  return a[Math.floor(Math.random()*a.length)];
+}
 
 function generateNama(){
-  let nama=random(depan)+" "+random(belakang);
-  document.getElementById("hasil").innerText=nama;
+  let nama = random(depan)+" "+random(belakang);
+  document.getElementById("hasil").innerText = nama;
   navigator.clipboard.writeText(nama);
 }
 
-// ====== MENU SWITCH ======
-function showMenu(menu){
-  document.getElementById("menuNama").style.display=(menu==="nama")?"block":"none";
-  document.getElementById("menuLink").style.display=(menu==="link")?"block":"none";
-}
-
-// ====== DATA LINK ORDER ======
+// ===== LINK DATA =====
 const data = [
 {nama:"AWAW", link:"https://s.shopee.co.id/6VKFY7rZoL"},
 {nama:"AWAW", link:"https://s.shopee.co.id/6px5wm8CN6"},
@@ -132,18 +134,31 @@ const data = [
 {nama:"MAMA - WHITE CYBER", link:"https://s.shopee.co.id/2g7J598NmS"}
 ];
 
-// ====== RENDER LINK ======
+// ===== RENDER =====
 function renderLinks(){
   let html="";
   data.forEach(d=>{
-    html+=`
+    html += `
       <div class="item">
         <b>${d.nama}</b><br>
-        <a href="${d.link}" target="_blank">${d.link}</a>
+        <a href="${d.link}" target="_blank">${d.link}</a><br>
+        <button class="copy-btn" onclick="copyLink('${d.link}')">Copy Link</button>
       </div>
     `;
   });
-  document.getElementById("links").innerHTML=html;
+  document.getElementById("links").innerHTML = html;
+}
+
+// ===== COPY =====
+function copyLink(link){
+  navigator.clipboard.writeText(link);
+  showToast();
+}
+
+function showToast(){
+  let t=document.getElementById("toast");
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
 }
 
 renderLinks();
