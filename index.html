@@ -41,11 +41,14 @@
             margin-bottom: 20px;
         }
 
-        .form-select, .form-control {
+        /* FIX: Mengecilkan tulisan pilihan server dan operator */
+        .form-select {
             background-color: #0f172a;
             border: 1px solid #334155;
             color: white;
             border-radius: 8px;
+            font-size: 0.8rem; /* Ukuran font dikecilkan */
+            font-weight: 500;
         }
 
         .form-select:focus {
@@ -110,7 +113,6 @@
             width: 48%;
         }
 
-        /* Suara Notif */
         #notif-sound { display: none; }
     </style>
 </head>
@@ -124,14 +126,14 @@
             <div class="row g-2 mb-3">
                 <div class="col-6">
                     <select id="serverSelect" class="form-select">
-                        <option value="hero">🏠 HERO SMS</option>
+                        <option value="hero">🚀 HERO SMS</option>
                         <option value="rumah">🏠 RUMAH OTP</option>
-                        <option value="smscode">🏠 SMSCODE.GG</option>
+                        <option value="smscode">⚡ SMSCODE.GG</option>
                     </select>
                 </div>
                 <div class="col-6">
                     <select id="operatorSelect" class="form-select">
-                        <option value="any">Termurah</option>
+                        <option value="any">Termurah (Otomatis)</option>
                         <option value="indosat">Indosat</option>
                         <option value="telkomsel">Telkomsel</option>
                         <option value="xl">XL Axiata</option>
@@ -182,14 +184,12 @@
         const API_BASE = "https://aihomestore.alazam04.workers.dev/api";
         let checkTimer = null;
 
-        // Load Memori saat buka web
         window.onload = () => {
             if(localStorage.getItem('order_id')) {
                 document.getElementById('display-id').innerText = localStorage.getItem('order_id');
                 document.getElementById('display-number').innerText = localStorage.getItem('phone');
                 startPolling();
             }
-            // Load pilihan server/operator terakhir
             if(localStorage.getItem('pref_server')) document.getElementById('serverSelect').value = localStorage.getItem('pref_server');
             if(localStorage.getItem('pref_op')) document.getElementById('operatorSelect').value = localStorage.getItem('pref_op');
         };
@@ -217,6 +217,8 @@
                     document.getElementById('display-id').innerText = data.id;
                     document.getElementById('display-number').innerText = data.number;
                     document.getElementById('otp-box').innerText = "WAITING";
+                    document.getElementById('otp-box').style.color = "#fbbf24";
+                    document.getElementById('status-desc').innerText = "Menunggu SMS masuk...";
                     
                     startPolling();
                 } else {
@@ -233,7 +235,7 @@
 
         function startPolling() {
             if(checkTimer) clearInterval(checkTimer);
-            checkTimer = setInterval(checkOTP, 5000); // Cek tiap 5 detik
+            checkTimer = setInterval(checkOTP, 5000); 
         }
 
         async function checkOTP() {
@@ -247,14 +249,17 @@
 
                 if (data.otp && data.otp !== "-") {
                     document.getElementById('otp-box').innerText = data.otp;
-                    document.getElementById('otp-box').style.color = "#4ade80"; // Hijau saat ready
-                    document.getElementById('status-desc').innerText = "OTP MASUK!";
                     
-                    // Bunyikan suara & Copy otomatis
-                    document.getElementById('notif-sound').play();
-                    navigator.clipboard.writeText(data.otp);
-                    
-                    clearInterval(checkTimer);
+                    if (data.otp.startsWith("ERR:") || data.otp.startsWith("STAT:")) {
+                        document.getElementById('otp-box').style.color = "#ef4444"; 
+                        document.getElementById('status-desc').innerText = "Cek Status...";
+                    } else {
+                        document.getElementById('otp-box').style.color = "#4ade80"; 
+                        document.getElementById('status-desc').innerText = "OTP MASUK!";
+                        document.getElementById('notif-sound').play();
+                        navigator.clipboard.writeText(data.otp);
+                        clearInterval(checkTimer);
+                    }
                 }
             } catch (e) {}
         }
@@ -272,7 +277,6 @@
             }
         }
 
-        // Generator Data Random
         function generateRandomData() {
             const names = ["Budi Santoso", "Siti Aminah", "Andi Wijaya", "Maya Wibowo", "Rian Hidayat", "Dewi Lestari"];
             const streets = ["Jl. Merdeka No. 10", "Jl. Gajah Mada No. 14", "Jl. Melati Blok C", "Perum Cahaya Indah No. 5"];
@@ -284,4 +288,5 @@
         }
     </script>
 </body>
-</html>
+                                                                   </html>
+                                                                   
